@@ -426,7 +426,7 @@
                 <!-- 1. 기본 RGB -->
                 <div class="info-row">
                     <div>
-                        <div class="info-label">RGB (기본)</div>
+                        <div class="info-label">RGB</div>
                         <div class="info-value" id="rgbVal">120 - 80 - 220</div>
                     </div>
                     <button class="copy-btn" onclick="copyText('rgbVal')">복사</button>
@@ -734,13 +734,7 @@
 
                 card.appendChild(swatch);
                 card.appendChild(codeBadge);
-
-                card.onclick = () => {
-                    navigator.clipboard.writeText(code).then(() => {
-                        showToast(`[ ${code} ] 복사 완료!`);
-                    });
-                };
-
+                
                 container.appendChild(card);
             });
         }
@@ -763,12 +757,12 @@
         }
 
         function updateColorDisplay(r, g, b) {
-            previewBox.style.backgroundColor = `rgb(${r}, ${g}, ${b})`;
-            rgbVal.textContent = `${r}, ${g}, ${b}`;
+            previewBox.style.backgroundColor = `rgb(${r} - ${g} -${b})`;
+            rgbVal.textContent = `${r} - ${g} - ${b}`;
 
             const { h, s, v } = rgbToHsv(r, g, b);
             
-            hsvVal.textContent = `${Math.round(h)}°, ${Math.round(s)}%, ${Math.round(v)}%`;
+            hsvVal.textContent = `${Math.round(h)} - ${Math.round(s)} - ${Math.round(v)}%`;
             customVal.textContent = calculateGameDyeCode(h, s, v);
 
             // 1) 보색 5가지
