@@ -763,12 +763,12 @@
             }
 
             function updateColorDisplay(r, g, b) {
-                previewBox.style.backgroundColor = `rgb(${r}, ${g}, ${b})`;
-                if (rgbVal) rgbVal.textContent = `${r}, ${g}, ${b}`;
+                previewBox.style.backgroundColor = `rgb(${r} - ${g} - ${b})`;
+                if (rgbVal) rgbVal.textContent = `${r} - ${g} - ${b}`;
 
                 const { h, s, v } = rgbToHsv(r, g, b);
                 
-                if (hsvVal) hsvVal.textContent = `${Math.round(h)}°, ${Math.round(s)}%, ${Math.round(v)}%`;
+                if (hsvVal) hsvVal.textContent = `${Math.round(h)} - ${Math.round(s)} - ${Math.round(v)}`;
                 if (customVal) customVal.textContent = calculateGameDyeCode(h, s, v);
 
                 const compList = [
@@ -842,8 +842,8 @@
                 setTimeout(() => toast.classList.remove('show'), 2000);
             }
 
-            // 초기 기본 색상 로드 (하늘색: 100, 180, 255)
-            updateColorDisplay(100, 180, 255);
+            
+            updateColorDisplay(255, 255, 255);
         });
     </script>
 </body>
