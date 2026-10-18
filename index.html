@@ -240,9 +240,12 @@
             border-radius: 4px;
         }
 
+        /* 프리뷰 박스가 스크롤 영역에서 찌그러지지 않도록 고정 */
         .preview-box {
             width: 100%;
             height: 75px;
+            min-height: 75px;
+            flex-shrink: 0;
             border-radius: 8px;
             border: 1px solid var(--border-color);
             box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.2);
@@ -253,6 +256,7 @@
             display: flex;
             flex-direction: column;
             gap: 0.6rem;
+            flex-shrink: 0;
         }
 
         .info-row {
@@ -382,6 +386,7 @@
         </div>
 
         <div class="card color-info-panel">
+            <!-- 최상단 색상 프리뷰 박스 -->
             <div class="preview-box" id="previewBox"></div>
 
             <div class="info-group">
@@ -723,7 +728,7 @@
             }
 
             function updateColorDisplay(r, g, b) {
-                previewBox.style.backgroundColor = `rgb(${r}, ${g}, ${b})`;
+                if (previewBox) previewBox.style.backgroundColor = `rgb(${r}, ${g}, ${b})`;
                 if (rgbVal) rgbVal.textContent = `${r} - ${g} - ${b}`;
 
                 const { h, s, v } = rgbToHsv(r, g, b);
