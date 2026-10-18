@@ -1,0 +1,851 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎮 게임 RGB 염색 코드 추출기</title>
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --accent-color: #6366f1;
+            --accent-hover: #4f46e5;
+            --text-main: #f8fafc;
+            --text-sub: #94a3b8;
+            --border-color: #334155;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            min-height: 100vh;
+            padding: 2rem 1rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        header h1 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            color: #818cf8;
+        }
+
+        header p {
+            color: #ffffff;
+            font-size: 0.95rem;
+            font-weight: 600;
+            text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000, 0 2px 4px rgba(0,0,0,0.8);
+            letter-spacing: 0.5px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            display: grid;
+            grid-template-columns: 1fr 390px;
+            gap: 1.5rem;
+        }
+
+        @media (max-width: 950px) {
+            .container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1.25rem;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .controls {
+            display: flex;
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .btn {
+            background-color: var(--accent-color);
+            color: white;
+            border: none;
+            padding: 0.6rem 1rem;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+        .btn:hover {
+            background-color: var(--accent-hover);
+        }
+
+        .btn-capture {
+            background-color: #059669;
+        }
+
+        .btn-capture:hover {
+            background-color: #047857;
+        }
+
+        .zoom-controls {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: #0f172a;
+            padding: 0.4rem 0.8rem;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            margin-left: auto;
+        }
+
+        .zoom-controls label {
+            font-size: 0.8rem;
+            color: var(--text-sub);
+            font-weight: bold;
+        }
+
+        .zoom-controls span {
+            font-family: monospace;
+            font-size: 0.85rem;
+            min-width: 45px;
+            text-align: right;
+        }
+
+        #fileInput {
+            display: none;
+        }
+
+        .workspace-wrapper {
+            position: relative;
+            flex-grow: 1;
+            height: 620px;
+            border: 2px dashed var(--border-color);
+            border-radius: 8px;
+            overflow: hidden;
+            background-color: #0b1120;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: grab;
+            user-select: none;
+        }
+
+        .workspace-wrapper:active {
+            cursor: grabbing;
+        }
+
+        .drop-zone-text {
+            position: absolute;
+            text-align: center;
+            color: var(--text-sub);
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .paste-badge {
+            display: inline-block;
+            background-color: #312e81;
+            color: #a5b4fc;
+            padding: 0.2rem 0.6rem;
+            border-radius: 4px;
+            font-family: monospace;
+            font-weight: bold;
+            font-size: 0.9rem;
+            margin: 0.2rem;
+        }
+
+        .canvas-container {
+            position: absolute;
+            display: none;
+            line-height: 0;
+            transform-origin: center center;
+            transition: transform 0.05s ease-out;
+        }
+
+        #canvas {
+            cursor: crosshair;
+            display: block;
+            max-width: 100%;
+            max-height: 560px;
+            width: auto;
+            height: auto;
+            object-fit: contain;
+        }
+
+        .loupe {
+            position: absolute;
+            width: 160px;
+            height: 160px;
+            border: 4px solid #ffffff;
+            border-radius: 50%;
+            pointer-events: none;
+            display: none;
+            box-shadow: 0 0 15px rgba(0,0,0,0.7);
+            background-repeat: no-repeat;
+            z-index: 100;
+            image-rendering: pixelated;
+        }
+
+        .loupe::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 10px;
+            height: 10px;
+            transform: translate(-50%, -50%);
+            border: 2px solid #ef4444;
+            border-radius: 50%;
+            box-shadow: 0 0 2px black;
+        }
+
+        .color-info-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .preview-box {
+            width: 100%;
+            height: 85px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            background-color: #7850dc;
+        }
+
+        .info-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.6rem;
+        }
+
+        .info-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background-color: #0f172a;
+            padding: 0.55rem 0.8rem;
+            border-radius: 6px;
+            border: 1px solid #334155;
+        }
+
+        .info-label {
+            font-size: 0.78rem;
+            color: var(--text-sub);
+            font-weight: 600;
+            margin-bottom: 0.1rem;
+        }
+
+        .info-value {
+            font-family: monospace;
+            font-size: 0.95rem;
+            font-weight: bold;
+            color: #f1f5f9;
+        }
+
+        .copy-btn {
+            background-color: #334155;
+            border: none;
+            color: white;
+            padding: 0.3rem 0.6rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .copy-btn:hover {
+            background-color: var(--accent-color);
+        }
+
+        /* 가독성 대폭 개선된 추천 팔레트 스타일 */
+        .harmony-section {
+            margin-top: 0.4rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1.1rem;
+        }
+
+        .harmony-title {
+            font-size: 0.88rem;
+            font-weight: 700;
+            color: #818cf8;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 0.3rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .harmony-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 0.4rem;
+        }
+
+        .box-swatch-card {
+            display: flex;
+            flex-direction: column;
+            gap: 0.3rem;
+            cursor: pointer;
+        }
+
+        .box-swatch {
+            width: 100%;
+            height: 52px;
+            border-radius: 8px;
+            border: 2px solid rgba(255, 255, 255, 0.8);
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+            transition: transform 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .box-swatch-card:hover .box-swatch {
+            transform: translateY(-2px);
+            border-color: #818cf8;
+            box-shadow: 0 4px 10px rgba(99, 102, 241, 0.4);
+        }
+
+        .box-code-badge {
+            background-color: #0b1120;
+            border: 1px solid #334155;
+            border-radius: 4px;
+            padding: 0.25rem 0.1rem;
+            font-family: 'Consolas', 'Courier New', monospace;
+            font-size: 0.65rem;
+            font-weight: 700;
+            color: #f1f5f9;
+            text-align: center;
+            letter-spacing: -0.3px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .box-swatch-card:hover .box-code-badge {
+            background-color: #312e81;
+            color: #ffffff;
+            border-color: #6366f1;
+        }
+
+        #hiddenVideo {
+            display: none;
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            background-color: var(--accent-color);
+            color: white;
+            padding: 0.6rem 1.2rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.3s;
+            pointer-events: none;
+            z-index: 1000;
+        }
+
+        .toast.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>🎮 게임 RGB 염색 코드 추출기</h1>
+        <p>드래그로 이미지 이동 | 클릭으로 색상 추출 | 마우스 휠로 확대</p>
+    </header>
+
+    <div class="container">
+        <div class="card">
+            <div class="controls">
+                <button class="btn" onclick="document.getElementById('fileInput').click()">
+                    📁 파일 선택
+                </button>
+                <input type="file" id="fileInput" accept="image/*">
+
+                <button class="btn btn-capture" id="captureWinBtn">
+                    🖥️ 특정 창 캡처
+                </button>
+
+                <div class="zoom-controls">
+                    <label for="zoomRange">화면 확대</label>
+                    <input type="range" id="zoomRange" min="1" max="8" step="0.5" value="1">
+                    <span id="zoomLabel">100%</span>
+                </div>
+            </div>
+
+            <div class="workspace-wrapper" id="dropZone">
+                <div class="drop-zone-text" id="dropText">
+                    <p style="font-size: 1.2rem; font-weight: 700; margin-bottom: 0.6rem;">
+                        [🖥️ 특정 창 캡처] 클릭 또는 <span class="paste-badge">Ctrl + V</span>
+                    </p>
+                    <p style="font-size: 0.85rem; opacity: 0.8;">
+                        원하는 게임 창만 캡처하거나 이미지를 붙여넣으세요.
+                    </p>
+                </div>
+                
+                <div class="canvas-container" id="canvasContainer">
+                    <canvas id="canvas"></canvas>
+                    <div class="loupe" id="loupe"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card color-info-panel">
+            <div class="preview-box" id="previewBox"></div>
+
+            <div class="info-group">
+                <!-- 1. 기본 RGB -->
+                <div class="info-row">
+                    <div>
+                        <div class="info-label">RGB (기본)</div>
+                        <div class="info-value" id="rgbVal">120, 80, 220</div>
+                    </div>
+                    <button class="copy-btn" onclick="copyText('rgbVal')">복사</button>
+                </div>
+
+                <!-- 2. HSV 값 -->
+                <div class="info-row">
+                    <div>
+                        <div class="info-label">HSV 값</div>
+                        <div class="info-value" id="hsvVal">257°, 64%, 86%</div>
+                    </div>
+                    <button class="copy-btn" onclick="copyText('hsvVal')">복사</button>
+                </div>
+
+                <!-- 3. 게임 커스텀 코드 -->
+                <div class="info-row">
+                    <div>
+                        <div class="info-label">게임 커스텀 코드</div>
+                        <div class="info-value" id="customVal">366-326-442</div>
+                    </div>
+                    <button class="copy-btn" onclick="copyText('customVal')">복사</button>
+                </div>
+            </div>
+
+            <!-- 4. 보색 추천 5가지 -->
+            <div class="harmony-section">
+                <div>
+                    <div class="harmony-title">🎨 보색 추천 5가지 (클릭 시 코드 복사)</div>
+                    <div class="harmony-grid" id="compGrid"></div>
+                </div>
+
+                <!-- 5. 삼색 조화 추천 5가지 -->
+                <div>
+                    <div class="harmony-title">📐 삼색 조화 추천 5가지 (클릭 시 코드 복사)</div>
+                    <div class="harmony-grid" id="triadGrid"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <video id="hiddenVideo" autoplay></video>
+    <div class="toast" id="toast">복사되었습니다!</div>
+
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d', { willReadFrequently: true });
+        const canvasContainer = document.getElementById('canvasContainer');
+        const fileInput = document.getElementById('fileInput');
+        const dropZone = document.getElementById('dropZone');
+        const dropText = document.getElementById('dropText');
+        const zoomRange = document.getElementById('zoomRange');
+        const zoomLabel = document.getElementById('zoomLabel');
+        const loupe = document.getElementById('loupe');
+        const previewBox = document.getElementById('previewBox');
+        
+        const rgbVal = document.getElementById('rgbVal');
+        const hsvVal = document.getElementById('hsvVal');
+        const customVal = document.getElementById('customVal');
+        
+        const compGrid = document.getElementById('compGrid');
+        const triadGrid = document.getElementById('triadGrid');
+
+        const captureWinBtn = document.getElementById('captureWinBtn');
+        const video = document.getElementById('hiddenVideo');
+
+        let currentImg = null;
+        let scale = 1;
+        let panX = 0;
+        let panY = 0;
+        let isDragging = false;
+        let startX = 0;
+        let startY = 0;
+        let hasDraggedFar = false;
+
+        function updateTransform() {
+            canvasContainer.style.transform = `translate(${panX}px, ${panY}px) scale(${scale})`;
+        }
+
+        function loadImage(src) {
+            const img = new Image();
+            img.onload = () => {
+                currentImg = img;
+                canvas.width = img.width;
+                canvas.height = img.height;
+                ctx.drawImage(img, 0, 0);
+                canvasContainer.style.display = 'block';
+                dropText.style.display = 'none';
+                zoomRange.value = 1;
+                scale = 1;
+                panX = 0;
+                panY = 0;
+                updateTransform();
+                showToast("이미지를 불러왔습니다!");
+            };
+            img.src = src;
+        }
+
+        function updateZoom(newScale) {
+            scale = parseFloat(newScale);
+            zoomLabel.textContent = `${Math.round(scale * 100)}%`;
+            updateTransform();
+        }
+
+        zoomRange.addEventListener('input', (e) => updateZoom(e.target.value));
+
+        dropZone.addEventListener('wheel', (e) => {
+            if (!currentImg) return;
+            e.preventDefault();
+            let step = 0.5;
+            let val = parseFloat(zoomRange.value);
+            if (e.deltaY < 0) {
+                val = Math.min(zoomRange.max, val + step);
+            } else {
+                val = Math.max(zoomRange.min, val - step);
+            }
+            zoomRange.value = val;
+            updateZoom(val);
+        }, { passive: false });
+
+        captureWinBtn.addEventListener('click', async () => {
+            if (!navigator.mediaDevices || !navigator.mediaDevices.getDisplayMedia) {
+                showToast("현재 환경에서는 직접 캡처를 지원하지 않습니다. Alt + PrtScn을 이용해 주세요.");
+                return;
+            }
+            try {
+                const stream = await navigator.mediaDevices.getDisplayMedia({
+                    video: { displaySurface: "window" },
+                    audio: false
+                });
+
+                video.srcObject = stream;
+                video.onloadedmetadata = () => {
+                    setTimeout(() => {
+                        canvas.width = video.videoWidth;
+                        canvas.height = video.videoHeight;
+                        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+                        currentImg = true;
+                        canvasContainer.style.display = 'block';
+                        dropText.style.display = 'none';
+                        
+                        stream.getTracks().forEach(track => track.stop());
+                        scale = 1;
+                        panX = 0;
+                        panY = 0;
+                        updateTransform();
+                        showToast("선택한 창이 성공적으로 캡처되었습니다!");
+                    }, 400);
+                };
+            } catch (err) {
+                showToast("창 캡처 선택이 취소되었습니다.");
+            }
+        });
+
+        dropZone.addEventListener('contextmenu', (e) => e.preventDefault());
+
+        dropZone.addEventListener('mousedown', (e) => {
+            if (!currentImg) return;
+            if (e.button === 0 || e.button === 2) {
+                isDragging = true;
+                hasDraggedFar = false;
+                startX = e.clientX - panX;
+                startY = e.clientY - panY;
+            }
+        });
+
+        window.addEventListener('mousemove', (e) => {
+            if (!isDragging) return;
+            const newPanX = e.clientX - startX;
+            const newPanY = e.clientY - startY;
+
+            if (Math.abs(newPanX - panX) > 5 || Math.abs(newPanY - panY) > 5) {
+                hasDraggedFar = true;
+            }
+
+            panX = newPanX;
+            panY = newPanY;
+            updateTransform();
+            loupe.style.display = 'none';
+        });
+
+        window.addEventListener('mouseup', () => {
+            isDragging = false;
+        });
+
+        fileInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (event) => loadImage(event.target.result);
+                reader.readAsDataURL(file);
+            }
+        });
+
+        window.addEventListener('paste', (e) => {
+            const items = (e.clipboardData || e.originalEvent.clipboardData).items;
+            let imageFound = false;
+
+            for (let item of items) {
+                if (item.type.indexOf('image') !== -1) {
+                    const blob = item.getAsFile();
+                    const reader = new FileReader();
+                    reader.onload = (event) => loadImage(event.target.result);
+                    reader.readAsDataURL(blob);
+                    imageFound = true;
+                    break;
+                }
+            }
+
+            if (!imageFound) {
+                showToast("클립보드에 이미지가 없습니다.");
+            }
+        });
+
+        dropZone.addEventListener('dragover', (e) => e.preventDefault());
+        dropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            const file = e.dataTransfer.files[0];
+            if (file && file.type.startsWith('image/')) {
+                const reader = new FileReader();
+                reader.onload = (event) => loadImage(event.target.result);
+                reader.readAsDataURL(file);
+            }
+        });
+
+        function rgbToHsv(r, g, b) {
+            const rNorm = r / 255;
+            const gNorm = g / 255;
+            const bNorm = b / 255;
+
+            const max = Math.max(rNorm, gNorm, bNorm);
+            const min = Math.min(rNorm, gNorm, bNorm);
+            const diff = max - min;
+
+            let h = 0;
+            let s = max === 0 ? 0 : (diff / max) * 100;
+            let v = max * 100;
+
+            if (diff !== 0) {
+                switch (max) {
+                    case rNorm:
+                        h = (gNorm - bNorm) / diff + (gNorm < bNorm ? 6 : 0);
+                        break;
+                    case gNorm:
+                        h = (bNorm - rNorm) / diff + 2;
+                        break;
+                    case bNorm:
+                        h = (rNorm - gNorm) / diff + 4;
+                        break;
+                }
+                h *= 60;
+            }
+
+            return { h, s, v };
+        }
+
+        function hsvToRgb(h, s, v) {
+            s /= 100;
+            v /= 100;
+            const c = v * s;
+            const x = c * (1 - Math.abs(((h / 60) % 2) - 1));
+            const m = v - c;
+
+            let r = 0, g = 0, b = 0;
+            if (h >= 0 && h < 60) { r = c; g = x; b = 0; }
+            else if (h >= 60 && h < 120) { r = x; g = c; b = 0; }
+            else if (h >= 120 && h < 180) { r = 0; g = c; b = x; }
+            else if (h >= 180 && h < 240) { r = 0; g = x; b = c; }
+            else if (h >= 240 && h < 300) { r = x; g = 0; b = c; }
+            else if (h >= 300 && h < 360) { r = c; g = 0; b = x; }
+
+            return {
+                r: Math.round((r + m) * 255),
+                g: Math.round((g + m) * 255),
+                b: Math.round((b + m) * 255)
+            };
+        }
+
+        function calculateGameDyeCode(h, s, v) {
+            const hCode = Math.floor((Math.round((h / 360) * 512)) % 512);
+            const sCode = Math.round((s / 100) * 512);
+            const vCode = Math.round((v / 100) * 512);
+
+            return `${hCode}-${sCode}-${vCode}`;
+        }
+
+        // 가독성 개선된 사각형 박스 + 한 줄 코드 뱃지 렌더러
+        function renderHarmonyGrid(container, colorList) {
+            container.innerHTML = '';
+            colorList.forEach(item => {
+                const normalizedHue = (item.h + 360) % 360;
+                const rgb = hsvToRgb(normalizedHue, item.s, item.v);
+                const code = calculateGameDyeCode(normalizedHue, item.s, item.v);
+
+                const card = document.createElement('div');
+                card.className = 'box-swatch-card';
+                card.title = `클릭 시 복사: ${code}`;
+
+                const swatch = document.createElement('div');
+                swatch.className = 'box-swatch';
+                swatch.style.backgroundColor = `rgb(${rgb.r}, ${rgb.g}, ${rgb.b})`;
+
+                const codeBadge = document.createElement('div');
+                codeBadge.className = 'box-code-badge';
+                codeBadge.textContent = code;
+
+                card.appendChild(swatch);
+                card.appendChild(codeBadge);
+
+                card.onclick = () => {
+                    navigator.clipboard.writeText(code).then(() => {
+                        showToast(`[ ${code} ] 복사 완료!`);
+                    });
+                };
+
+                container.appendChild(card);
+            });
+        }
+
+        function getCanvasColor(e) {
+            const rect = canvas.getBoundingClientRect();
+            const scaleX = canvas.width / rect.width;
+            const scaleY = canvas.height / rect.height;
+
+            const x = Math.floor((e.clientX - rect.left) * scaleX);
+            const y = Math.floor((e.clientY - rect.top) * scaleY);
+
+            if (x < 0 || x >= canvas.width || y < 0 || y >= canvas.height) return null;
+
+            const pixel = ctx.getImageData(x, y, 1, 1).data;
+            return {
+                r: pixel[0], g: pixel[1], b: pixel[2],
+                x, y
+            };
+        }
+
+        function updateColorDisplay(r, g, b) {
+            previewBox.style.backgroundColor = `rgb(${r}, ${g}, ${b})`;
+            rgbVal.textContent = `${r}, ${g}, ${b}`;
+
+            const { h, s, v } = rgbToHsv(r, g, b);
+            
+            hsvVal.textContent = `${Math.round(h)}°, ${Math.round(s)}%, ${Math.round(v)}%`;
+            customVal.textContent = calculateGameDyeCode(h, s, v);
+
+            // 1) 보색 5가지
+            const compList = [
+                { h: h + 150, s: Math.min(100, s * 0.9), v: Math.max(30, v * 0.9) },
+                { h: h + 165, s: s, v: v },
+                { h: h + 180, s: s, v: v },
+                { h: h + 195, s: s, v: Math.min(100, v * 1.1) },
+                { h: h + 210, s: Math.min(100, s * 1.1), v: v }
+            ];
+            renderHarmonyGrid(compGrid, compList);
+
+            // 2) 삼색 조화 5가지
+            const triadList = [
+                { h: h, s: Math.max(20, s * 0.6), v: Math.min(100, v * 1.1) },
+                { h: h + 120, s: s, v: v },
+                { h: h + 120, s: Math.min(100, s * 1.2), v: Math.max(20, v * 0.8) },
+                { h: h + 240, s: s, v: v },
+                { h: h + 240, s: Math.min(100, s * 0.8), v: Math.min(100, v * 1.2) }
+            ];
+            renderHarmonyGrid(triadGrid, triadList);
+        }
+
+        canvas.addEventListener('mousemove', (e) => {
+            if (!currentImg || isDragging) return;
+            const data = getCanvasColor(e);
+            if (!data) {
+                loupe.style.display = 'none';
+                return;
+            }
+
+            loupe.style.display = 'block';
+            const containerRect = canvasContainer.getBoundingClientRect();
+            const mouseX = (e.clientX - containerRect.left) / scale;
+            const mouseY = (e.clientY - containerRect.top) / scale;
+
+            const loupeRadius = 80;
+            loupe.style.left = `${mouseX - loupeRadius}px`;
+            loupe.style.top = `${mouseY - loupeRadius}px`;
+
+            const zoomAmount = 10;
+            loupe.style.backgroundImage = `url(${canvas.toDataURL()})`;
+            loupe.style.backgroundSize = `${canvas.width * zoomAmount}px ${canvas.height * zoomAmount}px`;
+
+            const zoomX = data.x * zoomAmount - loupeRadius;
+            const zoomY = data.y * zoomAmount - loupeRadius;
+            loupe.style.backgroundPosition = `-${zoomX}px -${zoomY}px`;
+        });
+
+        canvasContainer.addEventListener('mouseleave', () => {
+            loupe.style.display = 'none';
+        });
+
+        canvas.addEventListener('click', (e) => {
+            if (hasDraggedFar) return;
+            const data = getCanvasColor(e);
+            if (data) {
+                updateColorDisplay(data.r, data.g, data.b);
+            }
+        });
+
+        function copyText(elementId) {
+            const text = document.getElementById(elementId).textContent;
+            navigator.clipboard.writeText(text).then(() => {
+                showToast(`'${text}' 복사되었습니다!`);
+            });
+        }
+
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            toast.textContent = msg;
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 2000);
+        }
+
+        // 초기 기본값 표시
+        updateColorDisplay(120, 80, 220);
+    </script>
+</body>
+</html>
