@@ -268,21 +268,6 @@
             color: #f1f5f9;
         }
 
-        .copy-btn {
-            background-color: #334155;
-            border: none;
-            color: white;
-            padding: 0.3rem 0.6rem;
-            border-radius: 4px;
-            font-size: 0.75rem;
-            cursor: pointer;
-            transition: background 0.2s;
-        }
-
-        .copy-btn:hover {
-            background-color: var(--accent-color);
-        }
-
         .harmony-section {
             margin-top: 0.4rem;
             display: flex;
@@ -353,26 +338,6 @@
 
         #hiddenVideo {
             display: none;
-        }
-
-        .toast {
-            position: fixed;
-            bottom: 20px;
-            background-color: var(--accent-color);
-            color: white;
-            padding: 0.6rem 1.2rem;
-            border-radius: 20px;
-            font-size: 0.85rem;
-            opacity: 0;
-            transform: translateY(20px);
-            transition: all 0.3s;
-            pointer-events: none;
-            z-index: 1000;
-        }
-
-        .toast.show {
-            opacity: 1;
-            transform: translateY(0);
         }
 
         .color-info-panel {
@@ -447,7 +412,6 @@
                         <div class="info-label">RGB</div>
                         <div class="info-value" id="rgbVal">-</div>
                     </div>
-                    <button class="copy-btn" onclick="copyText('rgbVal')">복사</button>
                 </div>
 
                 <!-- 2. HSV 값 -->
@@ -456,7 +420,6 @@
                         <div class="info-label">HSV 값</div>
                         <div class="info-value" id="hsvVal">-</div>
                     </div>
-                    <button class="copy-btn" onclick="copyText('hsvVal')">복사</button>
                 </div>
 
                 <!-- 3. 게임 커스텀 코드 -->
@@ -465,35 +428,34 @@
                         <div class="info-label">게임 커스텀 코드</div>
                         <div class="info-value" id="customVal">-</div>
                     </div>
-                    <button class="copy-btn" onclick="copyText('customVal')">복사</button>
                 </div>
             </div>
 
             <!-- 4. 보색 추천 5가지 -->
             <div class="harmony-section">
                 <div>
-                    <div class="harmony-title">🎨 보색 추천 5가지 (클릭 시 복사)</div>
+                    <div class="harmony-title">🎨 보색 추천 5가지</div>
                     <div class="harmony-grid" id="compGrid"></div>
                 </div>
 
                 <!-- 5. 삼색 조화 추천 5가지 -->
                 <div>
-                    <div class="harmony-title">📐 삼색 조화 추천 5가지 (클릭 시 복사)</div>
+                    <div class="harmony-title">📐 삼색 조화 추천 5가지</div>
                     <div class="harmony-grid" id="triadGrid"></div>
                 </div>
 
                 <div>
-                    <div class="harmony-title">🔲 정사각형 조화 5가지 (클릭 시 복사)</div>
+                    <div class="harmony-title">🔲 정사각형 조화 5가지</div>
                     <div class="harmony-grid" id="squareGrid"></div>
                 </div>
                 
                 <div>
-                    <div class="harmony-title">🧩 복합물 조화 5가지 (클릭 시 복사)</div>
+                    <div class="harmony-title">🧩 복합물 조화 5가지</div>
                     <div class="harmony-grid" id="compoundGrid"></div>
                 </div>
                 
                 <div>
-                    <div class="harmony-title">🌈 유사색 조화 5가지 (클릭 시 복사)</div>
+                    <div class="harmony-title">🌈 유사색 조화 5가지</div>
                     <div class="harmony-grid" id="analogousGrid"></div>
                 </div>
             </div>
@@ -501,7 +463,6 @@
     </div>
 
     <video id="hiddenVideo" autoplay></video>
-    <div class="toast" id="toast">복사되었습니다!</div>
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
@@ -758,7 +719,6 @@
 
                     const card = document.createElement('div');
                     card.className = 'box-swatch-card';
-                    card.title = `클릭 시 복사: ${code}`;
 
                     const swatch = document.createElement('div');
                     swatch.className = 'box-swatch';
@@ -770,11 +730,6 @@
 
                     card.appendChild(swatch);
                     card.appendChild(codeBadge);
-
-                    card.onclick = () => {
-                        navigator.clipboard.writeText(code).then(() => {
-                            showToast(`[ ${code} ] 복사 완료!`);
-                        });
                     };
 
                     container.appendChild(card);
