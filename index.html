@@ -240,7 +240,6 @@
             border-radius: 4px;
         }
 
-        /* 프리뷰 박스가 스크롤 영역에서 찌그러지지 않도록 고정 */
         .preview-box {
             width: 100%;
             height: 75px;
@@ -390,7 +389,6 @@
             <div class="preview-box" id="previewBox"></div>
 
             <div class="info-group">
-                <!-- 1. 기본 RGB -->
                 <div class="info-row">
                     <div>
                         <div class="info-label">RGB</div>
@@ -398,7 +396,6 @@
                     </div>
                 </div>
 
-                <!-- 2. HSV 값 -->
                 <div class="info-row">
                     <div>
                         <div class="info-label">HSV 값</div>
@@ -406,7 +403,6 @@
                     </div>
                 </div>
 
-                <!-- 3. 게임 커스텀 코드 -->
                 <div class="info-row">
                     <div>
                         <div class="info-label">테런 색상 코드</div>
@@ -416,34 +412,56 @@
             </div>
 
             <div class="harmony-section">
-                <!-- 4. 보색 추천 5가지 -->
+                <!-- [기존 색상환 조화 5가지] -->
                 <div>
                     <div class="harmony-title">🎨 보색 추천 5가지</div>
                     <div class="harmony-grid" id="compGrid"></div>
                 </div>
 
-                <!-- 5. 삼색 조화 추천 5가지 -->
                 <div>
                     <div class="harmony-title">📐 삼색 조화 추천 5가지</div>
                     <div class="harmony-grid" id="triadGrid"></div>
                 </div>
 
-                <!-- 6. 정사각형 조화 5가지 -->
                 <div>
-                    <div class="harmony-title">🔲 정사각형 조화 추천 5가지</div>
+                    <div class="harmony-title">🔲 정사각형 조화 5가지</div>
                     <div class="harmony-grid" id="squareGrid"></div>
                 </div>
-                
-                <!-- 7. 복합물 조화 5가지 -->
+
                 <div>
-                    <div class="harmony-title">🧩 복합물 조화 추천 5가지</div>
+                    <div class="harmony-title">🧩 복합물 조화 5가지</div>
                     <div class="harmony-grid" id="compoundGrid"></div>
                 </div>
-                
-                <!-- 8. 유사색 조화 5가지 -->
+
                 <div>
-                    <div class="harmony-title">🌈 유사색 조화 추천 5가지</div>
+                    <div class="harmony-title">🌈 유사색 조화 5가지</div>
                     <div class="harmony-grid" id="analogousGrid"></div>
+                </div>
+
+                <!-- [새로운 패션 코디용 매칭 5가지] -->
+                <div>
+                    <div class="harmony-title">✨ 톤온톤 (Tone-on-Tone) 음영 코디 5가지</div>
+                    <div class="harmony-grid" id="toneOnToneGrid"></div>
+                </div>
+
+                <div>
+                    <div class="harmony-title">🌸 파스텔 / 밀크티 룩 5가지</div>
+                    <div class="harmony-grid" id="pastelGrid"></div>
+                </div>
+
+                <div>
+                    <div class="harmony-title">🌿 뮤트 / 어스 톤 (Muted) 5가지</div>
+                    <div class="harmony-grid" id="mutedGrid"></div>
+                </div>
+
+                <div>
+                    <div class="harmony-title">⚪⚫ 포인트 B&W 매칭 5가지</div>
+                    <div class="harmony-grid" id="bwPointGrid"></div>
+                </div>
+
+                <div>
+                    <div class="harmony-title">🎀 감성 유사색 인접 코디 5가지</div>
+                    <div class="harmony-grid" id="analogousFashionGrid"></div>
                 </div>
             </div>
         </div>
@@ -468,11 +486,19 @@
             const hsvVal = document.getElementById('hsvVal');
             const customVal = document.getElementById('customVal');
             
+            // 기존 5가지 그리드
             const compGrid = document.getElementById('compGrid');
             const triadGrid = document.getElementById('triadGrid');
             const squareGrid = document.getElementById('squareGrid');
             const compoundGrid = document.getElementById('compoundGrid');
             const analogousGrid = document.getElementById('analogousGrid');
+
+            // 신규 패션 5가지 그리드
+            const toneOnToneGrid = document.getElementById('toneOnToneGrid');
+            const pastelGrid = document.getElementById('pastelGrid');
+            const mutedGrid = document.getElementById('mutedGrid');
+            const bwPointGrid = document.getElementById('bwPointGrid');
+            const analogousFashionGrid = document.getElementById('analogousFashionGrid');
 
             const captureWinBtn = document.getElementById('captureWinBtn');
             const video = document.getElementById('hiddenVideo');
@@ -531,9 +557,7 @@
             }, { passive: false });
 
             captureWinBtn.addEventListener('click', async () => {
-                if (!navigator.mediaDevices || !navigator.mediaDevices.getDisplayMedia) {
-                    return;
-                }
+                if (!navigator.mediaDevices || !navigator.mediaDevices.getDisplayMedia) return;
                 try {
                     const stream = await navigator.mediaDevices.getDisplayMedia({
                         video: { displaySurface: "window" },
@@ -587,9 +611,7 @@
                 loupe.style.display = 'none';
             });
 
-            window.addEventListener('mouseup', () => {
-                isDragging = false;
-            });
+            window.addEventListener('mouseup', () => { isDragging = false; });
 
             fileInput.addEventListener('change', (e) => {
                 const file = e.target.files[0];
@@ -736,7 +758,8 @@
                 if (hsvVal) hsvVal.textContent = `${Math.round(h)} - ${Math.round(s)} - ${Math.round(v)}`;
                 if (customVal) customVal.textContent = calculateGameDyeCode(h, s, v);
 
-                // 1. 보색 추천 5가지
+                // --- 1. 기존 색상환 조화 5가지 ---
+                // 보색
                 const compList = [
                     { h: h, s: s, v: v },
                     { h: h + 180, s: s, v: v },
@@ -746,7 +769,7 @@
                 ];
                 renderHarmonyGrid(compGrid, compList);
 
-                // 2. 삼색 조화 추천 5가지
+                // 삼색
                 const triadList = [
                     { h: h, s: s, v: v },
                     { h: h + 120, s: s, v: v },
@@ -756,7 +779,7 @@
                 ];
                 renderHarmonyGrid(triadGrid, triadList);
 
-                // 3. 정사각형 조화 5가지
+                // 정사각형
                 const squareList = [
                     { h: h, s: s, v: v },
                     { h: h + 90, s: s, v: v },
@@ -766,7 +789,7 @@
                 ];
                 renderHarmonyGrid(squareGrid, squareList);
 
-                // 4. 복합물 조화 5가지
+                // 복합물
                 const compoundList = [
                     { h: h, s: s, v: v },
                     { h: h + 150, s: s, v: v },
@@ -776,7 +799,7 @@
                 ];
                 renderHarmonyGrid(compoundGrid, compoundList);
 
-                // 5. 유사색 조화 5가지
+                // 유사색
                 const analogousList = [
                     { h: h - 60, s: s, v: v },
                     { h: h - 30, s: s, v: v },
@@ -785,6 +808,58 @@
                     { h: h + 60, s: s, v: v }
                 ];
                 renderHarmonyGrid(analogousGrid, analogousList);
+
+
+                // --- 2. 신규 패션 코디용 매칭 5가지 ---
+                // 톤온톤
+                const toneOnToneList = [
+                    { h: h, s: s, v: v },
+                    { h: h, s: Math.max(10, s * 0.45), v: Math.min(100, v * 1.25) },
+                    { h: h, s: Math.min(100, s * 0.75), v: Math.max(10, v * 0.7) },
+                    { h: h, s: Math.min(100, s * 1.15), v: Math.max(10, v * 0.4) },
+                    { h: (h + 15) % 360, s: Math.max(10, s * 0.5), v: Math.min(100, v * 1.1) }
+                ];
+                renderHarmonyGrid(toneOnToneGrid, toneOnToneList);
+
+                // 파스텔
+                const pastelList = [
+                    { h: h, s: Math.min(35, s * 0.5), v: Math.max(85, v * 1.1) },
+                    { h: (h + 30) % 360, s: Math.min(30, s * 0.4), v: Math.max(90, v * 1.15) },
+                    { h: (h - 30 + 360) % 360, s: Math.min(30, s * 0.4), v: Math.max(90, v * 1.15) },
+                    { h: (h + 150) % 360, s: Math.min(25, s * 0.35), v: Math.max(85, v * 1.1) },
+                    { h: 35, s: 15, v: 95 }
+                ];
+                renderHarmonyGrid(pastelGrid, pastelList);
+
+                // 뮤트
+                const mutedList = [
+                    { h: h, s: Math.max(15, s * 0.6), v: Math.max(25, v * 0.75) },
+                    { h: (h + 40) % 360, s: Math.max(15, s * 0.5), v: Math.max(25, v * 0.7) },
+                    { h: (h - 40 + 360) % 360, s: Math.max(15, s * 0.5), v: Math.max(25, v * 0.7) },
+                    { h: 30, s: 20, v: 65 },
+                    { h: 210, s: 20, v: 45 }
+                ];
+                renderHarmonyGrid(mutedGrid, mutedList);
+
+                // 포인트 B&W
+                const bwPointList = [
+                    { h: h, s: s, v: v },
+                    { h: 0, s: 0, v: 100 },
+                    { h: 0, s: 0, v: 10 },
+                    { h: h, s: Math.max(10, s * 0.3), v: 98 },
+                    { h: h, s: Math.min(100, s * 1.2), v: 20 }
+                ];
+                renderHarmonyGrid(bwPointGrid, bwPointList);
+
+                // 감성 유사색
+                const analogousFashionList = [
+                    { h: (h - 30 + 360) % 360, s: Math.max(10, s * 0.8), v: v },
+                    { h: (h - 15 + 360) % 360, s: s, v: v },
+                    { h: h, s: s, v: v },
+                    { h: (h + 15) % 360, s: s, v: v },
+                    { h: (h + 30) % 360, s: Math.max(10, s * 0.8), v: v }
+                ];
+                renderHarmonyGrid(analogousFashionGrid, analogousFashionList);
             }
 
             canvas.addEventListener('mousemove', (e) => {
