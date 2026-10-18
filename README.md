@@ -1,1 +1,1 @@
-# trRGB
+# RGB -> HSV -> TR HSV
