@@ -1,1 +1,1 @@
-# RGB -> HSV -> TR HSV
+# RGB -> HSV -> Talesrunner HSV
