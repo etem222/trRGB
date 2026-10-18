@@ -763,7 +763,7 @@
             }
 
             function updateColorDisplay(r, g, b) {
-                previewBox.style.backgroundColor = `rgb(${r} - ${g} - ${b})`;
+                previewBox.style.backgroundColor = `rgb(${r}, ${g}, ${b})`;
                 if (rgbVal) rgbVal.textContent = `${r} - ${g} - ${b}`;
 
                 const { h, s, v } = rgbToHsv(r, g, b);
