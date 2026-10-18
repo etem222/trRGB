@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🎮 게임 RGB 염색 코드 추출기</title>
+    <title>🎮 테런 염색 코드 추출기</title>
     <style>
         :root {
             --bg-color: #0f172a;
@@ -379,7 +379,7 @@
 <body>
 
     <header>
-        <h1>🎮 게임 RGB 염색 코드 추출기</h1>
+        <h1>🎮 테런 염색 코드 추출기</h1>
         <p>드래그로 이미지 이동 | 클릭으로 색상 추출 | 마우스 휠로 확대</p>
     </header>
 
@@ -427,7 +427,7 @@
                 <div class="info-row">
                     <div>
                         <div class="info-label">RGB (기본)</div>
-                        <div class="info-value" id="rgbVal">120, 80, 220</div>
+                        <div class="info-value" id="rgbVal">120 - 80 - 220</div>
                     </div>
                     <button class="copy-btn" onclick="copyText('rgbVal')">복사</button>
                 </div>
@@ -436,7 +436,7 @@
                 <div class="info-row">
                     <div>
                         <div class="info-label">HSV 값</div>
-                        <div class="info-value" id="hsvVal">257°, 64%, 86%</div>
+                        <div class="info-value" id="hsvVal">257 - 64 - 86</div>
                     </div>
                     <button class="copy-btn" onclick="copyText('hsvVal')">복사</button>
                 </div>
@@ -445,7 +445,7 @@
                 <div class="info-row">
                     <div>
                         <div class="info-label">게임 커스텀 코드</div>
-                        <div class="info-value" id="customVal">366-326-442</div>
+                        <div class="info-value" id="customVal">366 - 326 - 442</div>
                     </div>
                     <button class="copy-btn" onclick="copyText('customVal')">복사</button>
                 </div>
@@ -454,13 +454,13 @@
             <!-- 4. 보색 추천 5가지 -->
             <div class="harmony-section">
                 <div>
-                    <div class="harmony-title">🎨 보색 추천 5가지 (클릭 시 코드 복사)</div>
+                    <div class="harmony-title">🎨 보색 추천 5가지</div>
                     <div class="harmony-grid" id="compGrid"></div>
                 </div>
 
                 <!-- 5. 삼색 조화 추천 5가지 -->
                 <div>
-                    <div class="harmony-title">📐 삼색 조화 추천 5가지 (클릭 시 코드 복사)</div>
+                    <div class="harmony-title">📐 삼색 조화 추천 5가지</div>
                     <div class="harmony-grid" id="triadGrid"></div>
                 </div>
             </div>
@@ -712,7 +712,7 @@
             return `${hCode}-${sCode}-${vCode}`;
         }
 
-        // 가독성 개선된 사각형 박스 + 한 줄 코드 뱃지 렌더러
+        // 사각형 박스 + 한 줄 코드 뱃지 렌더러
         function renderHarmonyGrid(container, colorList) {
             container.innerHTML = '';
             colorList.forEach(item => {
@@ -843,9 +843,8 @@
             toast.classList.add('show');
             setTimeout(() => toast.classList.remove('show'), 2000);
         }
-
-        // 초기 기본값 표시
-        updateColorDisplay(120, 80, 220);
+        
+        updateColorDisplay(0, 0, 0);
     </script>
 </body>
 </html>
